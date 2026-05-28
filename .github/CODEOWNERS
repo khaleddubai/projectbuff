@@ -1,0 +1,25 @@
+# AEGIS — Code Owners
+# Each line is a file pattern followed by one or more owners.
+# These owners are automatically requested for review when changes are made.
+
+# Default owner for all files
+* @aegis/core
+
+# API service (Express backend)
+/apps/api/ @aegis/backend
+
+# Web app (Next.js frontend)
+/apps/web/ @aegis/frontend
+
+# Infrastructure & Deployment
+/Dockerfile @aegis/devops
+/docker-compose.yml @aegis/devops
+/.github/ @aegis/devops
+
+# Documentation
+/docs-v3/ @aegis/docs
+/README.md @aegis/docs
+
+# Root configuration
+/.env.example @aegis/devops
+/LICENSE @aegis/core

@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================
+   AEGIS — Design System & Global Styles
+   ============================================= */
+
+@layer base {
+  html {
+    @apply bg-surface-950 text-surface-200 antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen overflow-hidden;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(34, 211, 238, 0.2);
+    color: #f1f5f9;
+  }
+
+  /* Focus ring */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-aegis-400/50 ring-offset-2 ring-offset-surface-950;
+  }
+}
+
+@layer components {
+  /* ===== Glass Morphism ===== */
+  .glass {
+    @apply bg-surface-800/60 backdrop-blur-xl border border-surface-700/40;
+  }
+  .glass-strong {
+    @apply bg-surface-800/80 backdrop-blur-xl border border-surface-700/60;
+  }
+  .glass-hover {
+    @apply transition-all duration-200;
+  }
+  .glass-hover:hover {
+    @apply bg-surface-800/80 border-surface-700/60;
+  }
+
+  /* ===== Gradient Text ===== */
+  .text-gradient-cyan {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-aegis-400 to-aegis-300;
+  }
+  .text-gradient-emerald {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-300;
+  }
+  .text-gradient-violet {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-violet-300;
+  }
+  .text-gradient-amber {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-300;
+  }
+  .text-gradient-rose {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-rose-300;
+  }
+
+  /* ===== Gradient Borders ===== */
+  .border-gradient-cyan {
+    @apply border border-transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+  .border-gradient-cyan::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.5), rgba(34, 211, 238, 0.1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* ===== Status Indicators ===== */
+  .status-dot {
+    @apply w-2 h-2 rounded-full inline-block;
+  }
+  .status-dot--online {
+    @apply bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)];
+  }
+  .status-dot--offline {
+    @apply bg-surface-500;
+  }
+  .status-dot--warning {
+    @apply bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.5)];
+  }
+  .status-dot--error {
+    @apply bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.5)];
+  }
+  .status-dot--busy {
+    @apply bg-aegis-400 shadow-[0_0_6px_rgba(34,211,238,0.5)] animate-pulse;
+  }
+
+  /* ===== Code Blocks ===== */
+  .code-block {
+    @apply bg-surface-900 rounded-xl border border-surface-700/50 font-mono text-sm overflow-x-auto;
+  }
+  .code-line {
+    @apply px-4 py-0.5 leading-relaxed;
+  }
+  .code-line--highlight {
+    @apply bg-aegis-500/5 border-l-2 border-aegis-400;
+  }
+
+  /* ===== Scrollbar ===== */
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(51, 65, 85, 0.5) transparent;
+  }
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    @apply bg-surface-700/50 rounded-full;
+  }
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    @apply bg-surface-600/70;
+  }
+
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ===== Skeleton shimmer ===== */
+  .skeleton {
+    @apply bg-surface-800 rounded-lg relative overflow-hidden;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(51, 65, 85, 0.3),
+      transparent
+    );
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* ===== Panel Layouts ===== */
+  .panel {
+    @apply glass rounded-2xl transition-all duration-200;
+  }
+  .panel:hover {
+    @apply border-surface-700/60;
+  }
+  .panel-header {
+    @apply px-5 py-4 border-b border-surface-700/30 flex items-center justify-between;
+  }
+  .panel-body {
+    @apply p-5;
+  }
+
+  /* ===== Keyboard shortcut badge ===== */
+  .kbd {
+    @apply inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-mono
+           rounded border border-surface-700 bg-surface-800 text-surface-400
+           min-w-[20px] h-5;
+  }
+
+  /* ===== Line clamp ===== */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  .select-all {
+    user-select: all;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* =============================================
+   Global Animations
+   ============================================= */
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(34, 211, 238, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.6); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================
+   Print Styles
+   ============================================= */
+
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+  .glass, .glass-strong {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+}

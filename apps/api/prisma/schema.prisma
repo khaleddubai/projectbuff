@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// A tenant (organization) that owns projects, settings, and API keys.
+/// Every record in the system belongs to exactly one organization.
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  projects       Project[]
+  apiKeys        ApiKey[]
+  settings       Setting[]
+  documentChunks DocumentChunk[]
+
+  @@map("organizations")
+}
+
+/// API key for authenticating requests to a specific organization.
+/// Keys are stored as SHA-256 hashes — the raw key is shown only once on creation.
+model ApiKey {
+  id             String       @id @default(uuid())
+  keyPrefix      String       @map("key_prefix")       // First 8 chars of the raw key (for UI identification)
+  keyHash        String       @unique @map("key_hash")   // SHA-256 hash of the full key
+  name           String       @default("default")      // Human-readable label
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lastUsedAt     DateTime?    @map("last_used_at")
+  expiresAt      DateTime?    @map("expires_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@index([keyHash])
+  @@index([organizationId])
+  @@map("api_keys")
+}
+
+model Project {
+  id             String       @id @default(uuid())
+  name           String
+  idea           String       @default("")
+  status         String       @default("pending")
+  outputPath     String?      @map("output_path")
+  organizationId String       @map("organization_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  logs           ProjectLog[]
+  documentChunks DocumentChunk[]
+  tokenUsages    TokenUsage[]
+
+  @@index([organizationId])
+  @@map("projects")
+}
+
+model ProjectLog {
+  id        Int      @id @default(autoincrement())
+  projectId String   @map("project_id")
+  agent     String
+  message   String
+  type      String   @default("info")
+  createdAt DateTime @default(now()) @map("created_at")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([createdAt])
+  @@map("project_logs")
+}
+
+/// Per-organization settings (e.g., LLM API keys, model selection).
+/// Composite primary key so each org has its own key-value store.
+model Setting {
+  organizationId String       @map("organization_id")
+  key            String
+  value          String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@id([organizationId, key])
+  @@index([organizationId])
+  @@map("settings")
+}
+
+/// Stores embedded text chunks for semantic search (pgvector).
+/// The embedding field is a 1536-dimensional vector (text-embedding-3-small).
+model DocumentChunk {
+  id             String       @id @default(uuid())
+  projectId      String       @map("project_id")
+  organizationId String       @map("organization_id")
+  source         String       @default("")             // e.g. "file", "log", "idea"
+  filePath       String?      @map("file_path")        // source file path if from output
+  content        String                                // the text content
+  embedding      Unsupported("vector(1536)")?           // pgvector embedding
+  createdAt      DateTime     @default(now()) @map("created_at")
+  project        Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([organizationId])
+  @@map("document_chunks")
+}
+
+/// Tracks LLM token usage per mission per agent for cost monitoring.
+/// Each row records one agent's token consumption within a mission.
+model TokenUsage {
+  id        String   @id @default(uuid())
+  projectId String   @map("project_id")
+  agent     String                        // e.g., "conductor", "backendEngineer", "fixer"
+  model     String                        // e.g., "qwen/qwen3-coder-480b-a35b-instruct"
+  provider  String   @default("openrouter") // LLM provider
+  promptTokens     Int @default(0) @map("prompt_tokens")
+  completionTokens Int @default(0) @map("completion_tokens")
+  totalTokens      Int @default(0) @map("total_tokens")
+  estimatedCostUsd Float?  @map("estimated_cost_usd") // Calculated from model pricing
+  createdAt        DateTime @default(now()) @map("created_at")
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([createdAt])
+  @@map("token_usage")
+}
